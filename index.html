@@ -62,7 +62,7 @@
             background-color: #357ABD;
         }
 
-        #result, #heuresCorrespondantes {
+        #result, #heuresPrincipales, #heuresActeursPros {
             margin-top: 10px;
             text-align: center;
             font-size: 16px;
@@ -83,14 +83,13 @@
 
     <div class="card">
         <label for="cachets">Nombre de cachets :</label>
-        <input type="number" id="cachets" placeholder="Entrez votre nombre de cachets" oninput="updateHeures()">
-        <div id="heuresCorrespondantes">Heures correspondantes : 0 h</div>
+        <input type="number" id="cachets" placeholder="Entrez votre nombre de cachets" oninput="updateHeuresPrincipales()">
+        <div id="heuresPrincipales">Heures correspondantes : 0 h</div>
 
         <div class="sub-card">
-            <label for="cachetsSupp">Cachets supplémentaires (max 27) :</label>
-            <input type="number" id="cachetsSupp" placeholder="0" min="0" max="27">
-            <label for="heuresSupp">Heures supplémentaires (max 338) :</label>
-            <input type="number" id="heuresSupp" placeholder="0" min="0" max="338">
+            <label for="cachetsActeursPros">Cachets supplémentaires d'ActeursPros (max 27, soit 338h) :</label>
+            <input type="number" id="cachetsActeursPros" placeholder="0" min="0" max="27" oninput="updateHeuresActeursPros()">
+            <div id="heuresActeursPros">Heures ActeursPros : 0 h</div>
         </div>
 
         <button onclick="calculer()">Calculer</button>
@@ -101,34 +100,40 @@
     <script>
         const CACHETS_INTERMITTENCE = 43;
         const HEURES_INTERMITTENCE = 507;
+        const MAX_CACHETS_ACTEURSPROS = 27;
+        const MAX_HEURES_ACTEURSPROS = 338;
 
-        function updateHeures() {
+        function updateHeuresPrincipales() {
             let cachets = parseInt(document.getElementById("cachets").value);
             if (isNaN(cachets) || cachets < 0) cachets = 0;
             let heures = (HEURES_INTERMITTENCE / CACHETS_INTERMITTENCE) * cachets;
-            document.getElementById("heuresCorrespondantes").innerText = `Heures correspondantes : ${heures.toFixed(2)} h`;
+            document.getElementById("heuresPrincipales").innerText = `Heures correspondantes : ${heures.toFixed(2)} h`;
+        }
+
+        function updateHeuresActeursPros() {
+            let cachetsAP = parseInt(document.getElementById("cachetsActeursPros").value);
+            if (isNaN(cachetsAP) || cachetsAP < 0) cachetsAP = 0;
+            if (cachetsAP > MAX_CACHETS_ACTEURSPROS) cachetsAP = MAX_CACHETS_ACTEURSPROS;
+            let heuresAP = (MAX_HEURES_ACTEURSPROS / MAX_CACHETS_ACTEURSPROS) * cachetsAP;
+            document.getElementById("heuresActeursPros").innerText = `Heures ActeursPros : ${heuresAP.toFixed(2)} h`;
         }
 
         function calculer() {
             let cachets = parseInt(document.getElementById("cachets").value);
-            let cachetsSupp = parseInt(document.getElementById("cachetsSupp").value);
-            let heuresSupp = parseFloat(document.getElementById("heuresSupp").value);
+            if (isNaN(cachets) || cachets < 0) cachets = 0;
 
-            const resultDiv = document.getElementById("result");
+            let cachetsAP = parseInt(document.getElementById("cachetsActeursPros").value);
+            if (isNaN(cachetsAP) || cachetsAP < 0) cachetsAP = 0;
+            if (cachetsAP > MAX_CACHETS_ACTEURSPROS) cachetsAP = MAX_CACHETS_ACTEURSPROS;
 
-            if (isNaN(cachets) || cachets < 0) {
-                resultDiv.innerHTML = "⚠ Veuillez entrer un nombre valide de cachets principaux.";
-                return;
-            }
+            // Heures principales
+            let heuresPrincipales = (HEURES_INTERMITTENCE / CACHETS_INTERMITTENCE) * cachets;
 
-            if (isNaN(cachetsSupp) || cachetsSupp < 0) cachetsSupp = 0;
-            if (cachetsSupp > 27) cachetsSupp = 27;
-
-            if (isNaN(heuresSupp) || heuresSupp < 0) heuresSupp = 0;
-            if (heuresSupp > 338) heuresSupp = 338;
+            // Heures ActeursPros
+            let heuresAP = (MAX_HEURES_ACTEURSPROS / MAX_CACHETS_ACTEURSPROS) * cachetsAP;
 
             // Heures totales réalisées
-            let heuresTotales = (HEURES_INTERMITTENCE / CACHETS_INTERMITTENCE) * cachets + heuresSupp;
+            let heuresTotales = heuresPrincipales + heuresAP;
 
             // Heures restantes
             let heuresRestantes = Math.max(HEURES_INTERMITTENCE - heuresTotales, 0);
@@ -136,7 +141,7 @@
             // Cachets restants correspondants
             let cachetsRestants = (heuresRestantes * CACHETS_INTERMITTENCE) / HEURES_INTERMITTENCE;
 
-            resultDiv.innerHTML = `
+            document.getElementById("result").innerHTML = `
                 Cachets restants pour l'intermittence : <b>${cachetsRestants.toFixed(2)}</b><br>
                 Heures restantes : <b>${heuresRestantes.toFixed(2)} h</b>
             `;

@@ -9,46 +9,64 @@
             font-family: 'Helvetica', sans-serif;
             background-color: #f0f4f8;
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-        }
-
-        h1 {
-            color: #333;
-            margin-bottom: 20px;
+            justify-content: center;
+            padding: 40px 20px;
         }
 
         .card {
             background-color: #ffffff;
-            padding: 20px 30px;
+            padding: 30px 40px;
             border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            max-width: 400px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
             width: 100%;
+            max-width: 450px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
         }
 
         label {
             display: block;
-            margin-bottom: 5px;
             font-weight: bold;
+            margin-bottom: 6px;
         }
 
         input[type="number"] {
             width: 100%;
-            padding: 8px 10px;
+            padding: 10px 12px;
             margin-bottom: 15px;
             border-radius: 6px;
             border: 1px solid #ccc;
             font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .sub-card {
+            background-color: #f7f9fc;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .sub-card label {
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
+        .result-box {
+            text-align: center;
+            font-size: 16px;
+            margin-top: 15px;
+            color: #333;
         }
 
         button {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             font-size: 16px;
             border: none;
             border-radius: 8px;
@@ -62,39 +80,32 @@
             background-color: #357ABD;
         }
 
-        #result, #heuresPrincipales, #heuresActeursPros {
-            margin-top: 10px;
-            text-align: center;
-            font-size: 16px;
-            color: #333;
-        }
-
-        .sub-card {
-            background-color: #f7f9fc;
-            padding: 10px 15px;
-            border-radius: 8px;
+        .heures-display {
+            font-size: 14px;
+            color: #555;
             margin-bottom: 10px;
+            text-align: right;
         }
     </style>
 </head>
 <body>
 
-    <h1>Calculateur Intermittence</h1>
-
     <div class="card">
+        <h1>Calculateur Intermittence</h1>
+
         <label for="cachets">Nombre de cachets :</label>
         <input type="number" id="cachets" placeholder="Entrez votre nombre de cachets" oninput="updateHeuresPrincipales()">
-        <div id="heuresPrincipales">Heures correspondantes : 0 h</div>
+        <div id="heuresPrincipales" class="heures-display">Heures correspondantes : 0 h</div>
 
         <div class="sub-card">
             <label for="cachetsActeursPros">Cachets supplémentaires d'ActeursPros (max 27, soit 338h) :</label>
             <input type="number" id="cachetsActeursPros" placeholder="0" min="0" max="27" oninput="updateHeuresActeursPros()">
-            <div id="heuresActeursPros">Heures ActeursPros : 0 h</div>
+            <div id="heuresActeursPros" class="heures-display">Heures ActeursPros : 0 h</div>
         </div>
 
         <button onclick="calculer()">Calculer</button>
 
-        <div id="result"></div>
+        <div id="result" class="result-box"></div>
     </div>
 
     <script>
@@ -126,19 +137,11 @@
             if (isNaN(cachetsAP) || cachetsAP < 0) cachetsAP = 0;
             if (cachetsAP > MAX_CACHETS_ACTEURSPROS) cachetsAP = MAX_CACHETS_ACTEURSPROS;
 
-            // Heures principales
             let heuresPrincipales = (HEURES_INTERMITTENCE / CACHETS_INTERMITTENCE) * cachets;
-
-            // Heures ActeursPros
             let heuresAP = (MAX_HEURES_ACTEURSPROS / MAX_CACHETS_ACTEURSPROS) * cachetsAP;
 
-            // Heures totales réalisées
             let heuresTotales = heuresPrincipales + heuresAP;
-
-            // Heures restantes
             let heuresRestantes = Math.max(HEURES_INTERMITTENCE - heuresTotales, 0);
-
-            // Cachets restants correspondants
             let cachetsRestants = (heuresRestantes * CACHETS_INTERMITTENCE) / HEURES_INTERMITTENCE;
 
             document.getElementById("result").innerHTML = `
